@@ -1,9 +1,11 @@
 require 'optparse'
+require "uri"
+require "cgi"
 
 class RedisStat
 module Option
   DEFAULT = {
-    :hosts      => ['127.0.0.1:6379'],
+    :hosts      => ['redis://127.0.0.1:6379'],
     :interval   => 2,
     :count      => nil,
     :csv_file   => nil,
@@ -16,11 +18,23 @@ module Option
 
     options = DEFAULT.dup
     op = ::OptionParser.new { |opts|
-      opts.banner = "usage: redis-stat [HOST[:PORT] ...] [INTERVAL [COUNT]]"
+      opts.banner = "usage: redis-stat [ [ <redis(s)://...> | HOST[:PORT[/PASSWORD]]] ...] [INTERVAL [COUNT]]"
       opts.separator ''
 
       opts.on('-a', '--auth=PASSWORD', 'Password') do |v|
         options[:auth] = v
+      end
+
+      opts.on('-k', '--key-file=path', 'Path to PEM encoded key file') do |v|
+        options[:key_file] = v
+      end
+
+      opts.on('-c', '--cert-file=path', 'Path to PEM encoded cert file') do |v|
+        options[:cert_file] = v
+      end
+
+      opts.on('--ca-file=path', 'Path to PEM encoded cert bundle file') do |v|
+        options[:ca_file] = v
       end
 
       opts.on('-v', '--verbose', 'Show more info') do |v|
@@ -83,7 +97,7 @@ module Option
 
       options[:interval] = interval if interval
       options[:count]    = count if count
-      options[:hosts]    = hosts unless hosts.empty?
+      options[:hosts]    = hosts.map{ |h| to_url(h) } unless hosts.empty?
 
       validate options
 
@@ -116,9 +130,12 @@ module Option
       end
 
       hosts.each do |host|
-        host, port = host.split(':')
-        if port
-          port = port.to_i
+        u = URI(host)
+        unless ["redis", "rediss"].include?(u.scheme)
+          raise ArgumentError.new("invalid scheme '#{u.scheme}'")
+        end
+        if u.port
+          port = u.port.to_i
           unless port > 0 && port < 65536
             raise ArgumentError.new("Invalid port: #{port}")
           end
@@ -134,6 +151,17 @@ module Option
 
     if options[:daemon] && options[:server_port].nil?
       raise ArgumentError.new("--daemon option must be used with --server option")
+    end
+  end
+
+
+  def self.to_url host
+    if host.index('redis') == 0
+      return host
+    else
+      hostport, password = host.split('/')
+      host, port = hostport.split(':')
+      return "redis://:#{password}@#{host}:#{port}"
     end
   end
 end

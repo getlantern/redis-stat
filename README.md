@@ -23,13 +23,16 @@ it instead.
 ## Usage
 
 ```
-usage: redis-stat [HOST[:PORT][/PASS] ...] [INTERVAL [COUNT]]
+usage: redis-stat [ [ <redis(s)://...> | HOST[:PORT[/PASSWORD]]] ...] [INTERVAL [COUNT]]
 
     -a, --auth=PASSWORD              Password
+    -k, --key-file=path              Path to PEM encoded key file
+    -c, --cert-file=path             Path to PEM encoded cert file
+        --ca-file=path               Path to PEM encoded cert bundle file
     -v, --verbose                    Show more info
         --style=STYLE                Output style: unicode|ascii
         --no-color                   Suppress ANSI color codes
-        --csv=OUTPUT_CSV_FILE_PATH   Save the result in CSV format
+        --csv[=CSV_FILE]             Print or save the result in CSV
         --es=ELASTICSEARCH_URL       Send results to ElasticSearch: [http://]HOST[:PORT][/INDEX]
 
         --server[=PORT]              Launch redis-stat web server (default port: 63790)

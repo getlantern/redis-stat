@@ -15,6 +15,8 @@ require 'si'
 require 'rbconfig'
 require 'lps'
 require 'readline'
+require "uri"
+require "cgi"
 
 class RedisStat
   attr_reader :hosts, :measures, :tab_measures, :verbose, :interval
@@ -30,12 +32,21 @@ class RedisStat
     @interval      = options[:interval]
     @auth          = options[:auth]
     @redises       = @hosts.inject({}) { |hash, e|
-      hostport, password = e.split('/')
-      host, port = hostport.split(':')
-      hash[e] = Redis.new(Hash[ {:host => host,
-                                 :port => port,
-                                 :password => password || @auth,
-                                 :timeout => @interval}.select { |k, v| v } ])
+      uri = URI(e)
+      password = CGI.unescape(uri.password) if uri.password
+      opts = {:ssl => uri.scheme == "rediss",
+              :host => uri.host,
+              :port => uri.port,
+              :password => password || @auth,
+              :timeout => @interval}
+      if options[:cert_file] and options[:key_file]
+        opts[:ssl_params] = {
+          :ca_file => options[:ca_file],
+          :cert    => OpenSSL::X509::Certificate.new(File.read(options[:cert_file])),
+          :key     => OpenSSL::PKey::RSA.new(File.read(options[:key_file]))
+        }
+      end
+      hash[e] = Redis.new(Hash[ opts.select { |k, v| v } ])
       hash
     }
     @max_count     = options[:count]
