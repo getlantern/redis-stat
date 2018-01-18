@@ -15,8 +15,6 @@ require 'si'
 require 'rbconfig'
 require 'lps'
 require 'readline'
-require "uri"
-require "cgi"
 
 class RedisStat
   attr_reader :hosts, :measures, :tab_measures, :verbose, :interval
@@ -31,13 +29,11 @@ class RedisStat
     @hosts         = options[:hosts]
     @interval      = options[:interval]
     @auth          = options[:auth]
-    @redises       = @hosts.inject({}) { |hash, e|
-      uri = URI(e)
-      password = CGI.unescape(uri.password) if uri.password
-      opts = {:ssl => uri.scheme == "rediss",
-              :host => uri.host,
-              :port => uri.port,
-              :password => password || @auth,
+    @redises       = @hosts.inject({}) { |hash, h|
+      opts = {:ssl => h.scheme == "rediss",
+              :host => h.host,
+              :port => h.port,
+              :password => h.password || @auth,
               :timeout => @interval}
       if options[:cert_file] and options[:key_file]
         opts[:ssl_params] = {
@@ -46,7 +42,7 @@ class RedisStat
           :key     => OpenSSL::PKey::RSA.new(File.read(options[:key_file]))
         }
       end
-      hash[e] = Redis.new(Hash[ opts.select { |k, v| v } ])
+      hash[h] = Redis.new(Hash[ opts.select { |k, v| v } ])
       hash
     }
     @max_count     = options[:count]
@@ -390,7 +386,7 @@ private
       :border_style => @style,
       :screen_width => @term_width
     )
-    tab << [nil] + @hosts.map { |h| h.bold.green }
+    tab << [nil] + @hosts.map { |h| h.to_s.bold.green }
     tab.separator!
     @tab_measures.each do |key|
       tab << [key.to_s.bold] + @hosts.map { |host| info[host][key] }

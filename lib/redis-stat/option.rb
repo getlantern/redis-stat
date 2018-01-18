@@ -12,6 +12,18 @@ module Option
     :csv_output => false,
     :style      => :unicode
   }
+  class Host
+    attr_reader :scheme, :host, :port, :password
+    def initialize(scheme, host, port, password)
+      @scheme, @host, @port, @password = scheme, host, port, password
+    end
+    def to_s
+      "#{scheme}://#{host}:#{port}"
+    end
+    def to_str
+      to_s
+    end
+  end
 
   def self.parse argv
     argv = argv.reject { |e| e == '-h' }
@@ -97,7 +109,8 @@ module Option
 
       options[:interval] = interval if interval
       options[:count]    = count if count
-      options[:hosts]    = hosts.map{ |h| to_url(h) } unless hosts.empty?
+      options[:hosts]    = hosts unless hosts.empty?
+      options[:hosts].map! { |h| to_host(h) }
 
       validate options
 
@@ -129,13 +142,12 @@ module Option
         raise ArgumentError.new("Redis host not given")
       end
 
-      hosts.each do |host|
-        u = URI(host)
-        unless ["redis", "rediss"].include?(u.scheme)
-          raise ArgumentError.new("invalid scheme '#{u.scheme}'")
+      hosts.each do |h|
+        unless ["redis", "rediss"].include?(h.scheme)
+          raise ArgumentError.new("invalid scheme '#{h.scheme}'")
         end
-        if u.port
-          port = u.port.to_i
+        if h.port
+          port = h.port.to_i
           unless port > 0 && port < 65536
             raise ArgumentError.new("Invalid port: #{port}")
           end
@@ -155,13 +167,15 @@ module Option
   end
 
 
-  def self.to_url host
+  def self.to_host host
     if host.index('redis') == 0
-      return host
+      uri = URI(host)
+      password = CGI.unescape(uri.password) if uri.password
+      Host.new(uri.scheme, uri.host, uri.port, password)
     else
       hostport, password = host.split('/')
       host, port = hostport.split(':')
-      return "redis://:#{password}@#{host}:#{port}"
+      Host.new("redis", host, port, password)
     end
   end
 end

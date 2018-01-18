@@ -37,7 +37,7 @@ class Server < Sinatra::Base
 
   get '/' do
     redis_stat    = settings.redis_stat
-    @hosts        = redis_stat.hosts
+    @hosts        = redis_stat.hosts.map{|h| h.to_s}
     @selected     = params[:host]
     redirect '/' if @selected && !@hosts.include?(@selected)
     @measures     = redis_stat.measures
