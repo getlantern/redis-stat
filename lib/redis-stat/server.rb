@@ -1,4 +1,5 @@
 require 'sinatra/base'
+require 'sinatra_auth_github'
 require 'json'
 require 'thread'
 require 'set'
@@ -7,6 +8,17 @@ class RedisStat
 class Server < Sinatra::Base
   HISTORY_LENGTH  = 50
   STAT_TABLE_ROWS = 10
+  enable :sessions
+
+  set :github_options, {
+    :scopes    => "user",
+    :secret    => ENV['GITHUB_CLIENT_SECRET'],
+    :client_id => ENV['GITHUB_CLIENT_ID'],
+  }
+
+  @@team_id = ENV['GITHUB_TEAM_ID']
+
+  register Sinatra::Auth::Github
 
   configure do
     if RUBY_PLATFORM == 'java'
@@ -36,6 +48,7 @@ class Server < Sinatra::Base
   end
 
   get '/' do
+    github_team_authenticate!(@@team_id)
     redis_stat    = settings.redis_stat
     @hosts        = redis_stat.hosts.map{|h| h.to_s}
     @selected     = params[:host]
