@@ -2,8 +2,8 @@
 *.rbc
 .bundle
 .config
+.ruby-version
 .yardoc
-Gemfile.lock
 InstalledFiles
 _yardoc
 coverage

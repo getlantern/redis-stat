@@ -1,0 +1,105 @@
+PATH
+  remote: .
+  specs:
+    redis-stat (0.4.14)
+      ansi256 (~> 0.2.5)
+      daemons (~> 1.2.6)
+      elasticsearch (~> 6.0.0)
+      insensitive_hash (~> 0.3.0)
+      json (~> 2.1.0)
+      lps (~> 0.2.0)
+      parallelize (~> 0.4.0)
+      redis (~> 4.0.1)
+      si (~> 0.1.4)
+      sinatra (~> 2.0.0)
+      sinatra_auth_github (~> 2.0.0)
+      tabularize (~> 0.2.9)
+      thin (~> 1.7.2)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activesupport (5.1.4)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (~> 0.7)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    ansi256 (0.2.5)
+    concurrent-ruby (1.0.5)
+    daemons (1.2.6)
+    elasticsearch (6.0.0)
+      elasticsearch-api (= 6.0.0)
+      elasticsearch-transport (= 6.0.0)
+    elasticsearch-api (6.0.0)
+      multi_json
+    elasticsearch-transport (6.0.0)
+      faraday
+      multi_json
+    eventmachine (1.2.5)
+    faraday (0.13.1)
+      multipart-post (>= 1.2, < 3)
+    i18n (0.9.1)
+      concurrent-ruby (~> 1.0)
+    insensitive_hash (0.3.3)
+    json (2.1.0)
+    lps (0.2.1)
+      option_initializer (~> 1.5.0)
+    minitest (5.11.1)
+    multi_json (1.13.1)
+    multipart-post (2.0.0)
+    mustermann (1.0.1)
+    octokit (4.8.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
+    option_initializer (1.5.1)
+    parallelize (0.4.1)
+    public_suffix (3.0.1)
+    rack (2.0.3)
+    rack-protection (2.0.0)
+      rack
+    rake (12.3.0)
+    redis (4.0.1)
+    sawyer (0.8.1)
+      addressable (>= 2.3.5, < 2.6)
+      faraday (~> 0.8, < 1.0)
+    si (0.1.4)
+    sinatra (2.0.0)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.0)
+      tilt (~> 2.0)
+    sinatra_auth_github (2.0.0)
+      sinatra (~> 2.0)
+      warden-github (~> 1.3)
+    tabularize (0.2.10)
+      unicode-display_width (>= 1.3.0)
+    thin (1.7.2)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
+    thread_safe (0.3.6)
+    tilt (2.0.8)
+    tzinfo (1.2.4)
+      thread_safe (~> 0.1)
+    unicode-display_width (1.3.0)
+    warden (1.2.7)
+      rack (>= 1.0)
+    warden-github (1.3.2)
+      activesupport (> 3.0)
+      octokit (> 2.1.0)
+      warden (> 1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  minitest
+  rake
+  redis-stat!
+
+RUBY VERSION
+   ruby 2.5.0p0
+
+BUNDLED WITH
+   1.16.1
