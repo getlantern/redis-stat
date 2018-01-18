@@ -29,17 +29,24 @@ class RedisStat
     @hosts         = options[:hosts]
     @interval      = options[:interval]
     @auth          = options[:auth]
+    @client_key    = ENV['CLIENT_KEY']
+    @client_cert   = ENV['CLIENT_CERT']
     @redises       = @hosts.inject({}) { |hash, h|
       opts = {:ssl => h.scheme == "rediss",
               :host => h.host,
               :port => h.port,
               :password => h.password || @auth,
               :timeout => @interval}
+
       if options[:cert_file] and options[:key_file]
+        @client_key = File.read(options[:key_file])
+        @client_cert = File.read(options[:cert_file])
+      end
+      if @client_key and @client_cert
         opts[:ssl_params] = {
           :ca_file => options[:ca_file],
-          :cert    => OpenSSL::X509::Certificate.new(File.read(options[:cert_file])),
-          :key     => OpenSSL::PKey::RSA.new(File.read(options[:key_file]))
+          :key     => OpenSSL::PKey::RSA.new(@client_key),
+          :cert    => OpenSSL::X509::Certificate.new(@client_cert)
         }
       end
       hash[h] = Redis.new(Hash[ opts.select { |k, v| v } ])
